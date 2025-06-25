@@ -4,10 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎯 Shifumi ULTIMATE by Cyrus HESSOU</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎯</text></svg>">
     <style>
         * {
@@ -51,7 +47,7 @@
 
         body {
             min-height: 100vh;
-            font-family: "Rubik", sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             overflow-x: hidden;
             position: relative;
@@ -118,6 +114,7 @@
             display: flex;
             gap: 0.5rem;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .mode-btn {
@@ -158,6 +155,10 @@
 
         .theme-btn:hover {
             transform: scale(1.2);
+        }
+
+        .theme-btn.active {
+            border-width: 4px;
         }
 
         .theme-default { background: linear-gradient(45deg, #667eea, #764ba2); }
@@ -240,6 +241,7 @@
         .power-ups {
             display: flex;
             gap: 0.5rem;
+            flex-wrap: wrap;
         }
 
         .power-up {
@@ -603,6 +605,7 @@
 
             .choices {
                 gap: 0.5rem;
+                flex-wrap: wrap;
             }
 
             .choice {
@@ -619,11 +622,6 @@
                 height: 120px;
                 font-size: 3rem;
             }
-        }
-
-        /* Thèmes spéciaux */
-        .space-bg {
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="1" fill="white" opacity="0.8"/><circle cx="80" cy="30" r="1" fill="white" opacity="0.6"/><circle cx="40" cy="70" r="1" fill="white" opacity="0.9"/><circle cx="90" cy="80" r="1" fill="white" opacity="0.7"/></svg>');
         }
     </style>
 </head>
@@ -718,9 +716,7 @@
                             <div class="player-name" id="iaName">IA</div>
                             <div class="player-score" id="iaScore">0</div>
                         </div>
-                        <div class="ia-choice" id="iaChoice">
-                            <div class="loading" id="loading" style="display: none;"></div>
-                        </div>
+                        <div class="ia-choice" id="iaChoice"></div>
                     </div>
                 </div>
             </div>
@@ -837,7 +833,6 @@
 
         // Audio context pour les sons
         let audioContext;
-        let sounds = {};
 
         // Initialisation
         document.addEventListener('DOMContentLoaded', function() {
@@ -865,24 +860,30 @@
         function playSound(frequency, duration = 100, type = 'sine') {
             if (!audioContext) return;
             
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            oscillator.frequency.value = frequency;
-            oscillator.type = type;
-            
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration / 1000);
-            
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + duration / 1000);
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = frequency;
+                oscillator.type = type;
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration / 1000);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration / 1000);
+            } catch (e) {
+                console.log('Erreur audio:', e);
+            }
         }
 
         function createParticles() {
             const particlesContainer = document.getElementById('particles');
+            if (!particlesContainer) return;
+            
             for (let i = 0; i < 20; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'particle';
@@ -900,7 +901,7 @@
             // Mode selector
             document.querySelectorAll('.mode-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    document.querySelector('.mode-btn.active').classList.remove('active');
+                    document.querySelector('.mode-btn.active')?.classList.remove('active');
                     this.classList.add('active');
                     currentMode = this.dataset.mode;
                     updateModeInfo();
@@ -912,7 +913,7 @@
             // Theme selector
             document.querySelectorAll('.theme-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    document.querySelector('.theme-btn.active').classList.remove('active');
+                    document.querySelector('.theme-btn.active')?.classList.remove('active');
                     this.classList.add('active');
                     currentTheme = this.dataset.theme;
                     updateTheme();
@@ -930,37 +931,48 @@
             });
 
             // Power-ups
-            document.getElementById('visionPower').addEventListener('click', () => usePowerUp('vision'));
-            document.getElementById('shieldPower').addEventListener('click', () => usePowerUp('shield'));
-            document.getElementById('doublePower').addEventListener('click', () => usePowerUp('double'));
+            const visionBtn = document.getElementById('visionPower');
+            const shieldBtn = document.getElementById('shieldPower');
+            const doubleBtn = document.getElementById('doublePower');
+
+            if (visionBtn) visionBtn.addEventListener('click', () => usePowerUp('vision'));
+            if (shieldBtn) shieldBtn.addEventListener('click', () => usePowerUp('shield'));
+            if (doubleBtn) doubleBtn.addEventListener('click', () => usePowerUp('double'));
         }
 
         function updateModeInfo() {
             const mode = gameModes[currentMode];
-            document.getElementById('modeTitle').textContent = mode.title;
-            document.getElementById('modeDescription').textContent = mode.description;
+            const titleEl = document.getElementById('modeTitle');
+            const descEl = document.getElementById('modeDescription');
+            
+            if (titleEl) titleEl.textContent = mode.title;
+            if (descEl) descEl.textContent = mode.description;
 
             // Show/hide timer
             const timer = document.getElementById('timer');
-            timer.style.display = mode.features.includes('timer') ? 'block' : 'none';
+            if (timer) {
+                timer.style.display = mode.features.includes('timer') ? 'block' : 'none';
+            }
 
             // Show/hide power-ups
             const powerUpsContainer = document.getElementById('powerUps');
-            powerUpsContainer.style.display = mode.features.includes('powerups') ? 'flex' : 'none';
+            if (powerUpsContainer) {
+                powerUpsContainer.style.display = mode.features.includes('powerups') ? 'flex' : 'none';
+            }
         }
 
         function updateTheme() {
             const theme = themes[currentTheme];
             document.body.className = currentTheme !== 'default' ? `theme-${currentTheme}` : '';
-            
-            if (currentTheme === 'space') {
-                document.body.classList.add('space-bg');
-            }
 
             // Update emojis
-            document.getElementById('rockEmoji').textContent = theme.emojis.pierre;
-            document.getElementById('paperEmoji').textContent = theme.emojis.papier;
-            document.getElementById('scissorsEmoji').textContent = theme.emojis.ciseau;
+            const rockEl = document.getElementById('rockEmoji');
+            const paperEl = document.getElementById('paperEmoji');
+            const scissorsEl = document.getElementById('scissorsEmoji');
+
+            if (rockEl) rockEl.textContent = theme.emojis.pierre;
+            if (paperEl) paperEl.textContent = theme.emojis.papier;
+            if (scissorsEl) scissorsEl.textContent = theme.emojis.ciseau;
         }
 
         function setupGameMode() {
@@ -978,8 +990,13 @@
                     winTarget = 10;
                     break;
                 default:
-                    winTarget = prompt('Nombre de victoires pour gagner ?') || 3;
-                    winTarget = parseInt(winTarget);
+                    const target = prompt('Nombre de victoires pour gagner ?') || 3;
+                    winTarget = parseInt(target);
+                    if (isNaN(winTarget) || winTarget < 1) winTarget = 3;
+            }
+
+            if (currentMode === 'lightning' || currentMode === 'tornado') {
+                setTimeout(() => startTimer(), 1000);
             }
         }
 
@@ -987,7 +1004,8 @@
             const bossNames = Object.keys(bossPatterns);
             currentBoss = 0;
             const boss = bossPatterns[bossNames[currentBoss]];
-            document.getElementById('iaName').textContent = boss.name;
+            const iaNameEl = document.getElementById('iaName');
+            if (iaNameEl) iaNameEl.textContent = boss.name;
             winTarget = 3;
         }
 
@@ -997,13 +1015,22 @@
         }
 
         function updatePowerUpsDisplay() {
-            document.getElementById('visionPower').textContent = `🔮 Vision (${powerUps.vision})`;
-            document.getElementById('shieldPower').textContent = `🛡️ Bouclier (${powerUps.shield})`;
-            document.getElementById('doublePower').textContent = `⚡ Double (${powerUps.double})`;
-            
-            document.getElementById('visionPower').disabled = powerUps.vision <= 0;
-            document.getElementById('shieldPower').disabled = powerUps.shield <= 0;
-            document.getElementById('doublePower').disabled = powerUps.double <= 0;
+            const visionEl = document.getElementById('visionPower');
+            const shieldEl = document.getElementById('shieldPower');
+            const doubleEl = document.getElementById('doublePower');
+
+            if (visionEl) {
+                visionEl.textContent = `🔮 Vision (${powerUps.vision})`;
+                visionEl.disabled = powerUps.vision <= 0;
+            }
+            if (shieldEl) {
+                shieldEl.textContent = `🛡️ Bouclier (${powerUps.shield})`;
+                shieldEl.disabled = powerUps.shield <= 0;
+            }
+            if (doubleEl) {
+                doubleEl.textContent = `⚡ Double (${powerUps.double})`;
+                doubleEl.disabled = powerUps.double <= 0;
+            }
         }
 
         function usePowerUp(type) {
@@ -1012,18 +1039,13 @@
             powerUps[type]--;
             updatePowerUpsDisplay();
             
-            switch(type) {
-                case 'vision':
-                    showNotification('🔮 Vision activée ! Vous verrez le choix de l\'IA !', 'info');
-                    break;
-                case 'shield':
-                    showNotification('🛡️ Bouclier activé ! Prochaine défaite annulée !', 'info');
-                    break;
-                case 'double':
-                    showNotification('⚡ Double activé ! Prochaine victoire compte double !', 'info');
-                    break;
-            }
+            const messages = {
+                vision: '🔮 Vision activée ! Vous verrez le choix de l\'IA !',
+                shield: '🛡️ Bouclier activé ! Prochaine défaite annulée !',
+                double: '⚡ Double activé ! Prochaine victoire compte double !'
+            };
             
+            showNotification(messages[type], 'info');
             playSound(1200, 300);
         }
 
@@ -1033,6 +1055,8 @@
 
             timeLeft = mode.timeLimit;
             const timerElement = document.getElementById('timer');
+            if (!timerElement) return;
+
             timerElement.textContent = timeLeft;
             timerElement.classList.remove('warning');
 
@@ -1057,7 +1081,8 @@
             
             if (gameTimer) {
                 clearInterval(gameTimer);
-                document.getElementById('timer').classList.remove('warning');
+                const timerEl = document.getElementById('timer');
+                if (timerEl) timerEl.classList.remove('warning');
             }
 
             gameActive = false;
@@ -1065,18 +1090,21 @@
             
             // Afficher le choix du joueur
             const playerChoiceElement = document.getElementById('playerChoice');
-            playerChoiceElement.textContent = themes[currentTheme].emojis[playerChoice];
+            if (playerChoiceElement) {
+                playerChoiceElement.textContent = themes[currentTheme].emojis[playerChoice];
+            }
             
-            // Afficher loading pour l'IA
+            // Afficher "En réflexion..." pour l'IA
             const iaChoiceElement = document.getElementById('iaChoice');
-            const loading = document.getElementById('loading');
-            iaChoiceElement.textContent = '';
-            loading.style.display = 'block';
+            if (iaChoiceElement) {
+                iaChoiceElement.innerHTML = '<div class="loading"></div>';
+            }
             
             setTimeout(() => {
-                loading.style.display = 'none';
                 const iaChoice = getIAChoice(playerChoice);
-                iaChoiceElement.textContent = themes[currentTheme].emojis[iaChoice];
+                if (iaChoiceElement) {
+                    iaChoiceElement.textContent = themes[currentTheme].emojis[iaChoice];
+                }
                 
                 // Ajouter à l'historique
                 playerHistory.push(playerChoice);
@@ -1089,8 +1117,9 @@
                 createCombatEffect(result);
                 
                 setTimeout(() => {
-                    if (gameActive) {
+                    if (playerScore < winTarget && iaScore < winTarget) {
                         clearChoices();
+                        gameActive = true;
                         if (currentMode === 'lightning' || currentMode === 'tornado') {
                             startTimer();
                         }
@@ -1121,7 +1150,10 @@
                 "Intéressant choix... 🤔"
             ];
             
-            document.getElementById('iaMessage').textContent = messages[Math.floor(Math.random() * messages.length)];
+            const msgEl = document.getElementById('iaMessage');
+            if (msgEl) {
+                msgEl.textContent = messages[Math.floor(Math.random() * messages.length)];
+            }
             
             // Simple counter strategy
             if (playerHistory.length >= 2) {
@@ -1135,6 +1167,8 @@
 
         function getBossChoice(playerChoice) {
             const bossNames = Object.keys(bossPatterns);
+            if (currentBoss >= bossNames.length) return getRandomChoice();
+            
             const boss = bossPatterns[bossNames[currentBoss]];
             
             switch(boss.strategy) {
@@ -1163,11 +1197,10 @@
         function getChaosChoice(playerChoice) {
             if (roundsPlayed % 3 === 0) {
                 chaosRulesActive = !chaosRulesActive;
-                if (chaosRulesActive) {
-                    showNotification('🎪 CHAOS ACTIVÉ ! Règles inversées !', 'info');
-                } else {
-                    showNotification('🎪 Retour aux règles normales !', 'info');
-                }
+                const message = chaosRulesActive ? 
+                    '🎪 CHAOS ACTIVÉ ! Règles inversées !' : 
+                    '🎪 Retour aux règles normales !';
+                showNotification(message, 'info');
             }
             
             return getRandomChoice();
@@ -1228,6 +1261,8 @@
 
         function createCombatEffect(result) {
             const arena = document.querySelector('.battle-arena');
+            if (!arena) return;
+            
             const effect = document.createElement('div');
             effect.className = 'combat-effect';
             
@@ -1246,8 +1281,11 @@
         }
 
         function updateScores() {
-            document.getElementById('playerScore').textContent = playerScore;
-            document.getElementById('iaScore').textContent = iaScore;
+            const playerScoreEl = document.getElementById('playerScore');
+            const iaScoreEl = document.getElementById('iaScore');
+            
+            if (playerScoreEl) playerScoreEl.textContent = playerScore;
+            if (iaScoreEl) iaScoreEl.textContent = iaScore;
         }
 
         function resetScores() {
@@ -1257,42 +1295,44 @@
         }
 
         function clearChoices() {
-            document.getElementById('playerChoice').textContent = '';
-            document.getElementById('iaChoice').textContent = '';
-            document.getElementById('iaMessage').textContent = '';
-            gameActive = true;
+            const playerChoiceEl = document.getElementById('playerChoice');
+            const iaChoiceEl = document.getElementById('iaChoice');
+            const msgEl = document.getElementById('iaMessage');
+            
+            if (playerChoiceEl) playerChoiceEl.textContent = '';
+            if (iaChoiceEl) iaChoiceEl.textContent = '';
+            if (msgEl) msgEl.textContent = '';
         }
 
         function checkGameEnd() {
             if (playerScore >= winTarget) {
-                endGame('Félicitations ! Vous avez remporté la partie !');
+                endGame('🏆 Félicitations ! Vous avez remporté la partie !');
             } else if (iaScore >= winTarget) {
-                endGame('L\'IA remporte la partie ! Réessayez !');
-            } else {
-                setTimeout(() => {
-                    gameActive = true;
-                    if (currentMode === 'lightning' || currentMode === 'tornado') {
-                        startTimer();
-                    }
-                }, 1000);
+                endGame('🤖 L\'IA remporte la partie ! Réessayez !');
             }
         }
 
         function endGame(message) {
             gameActive = false;
-            document.getElementById('modalTitle').textContent = message;
-            document.getElementById('modalScore').textContent = `Score final : Vous ${playerScore} - IA ${iaScore}`;
-            document.getElementById('modal').classList.add('show');
+            const modalTitleEl = document.getElementById('modalTitle');
+            const modalScoreEl = document.getElementById('modalScore');
+            const modalEl = document.getElementById('modal');
+            
+            if (modalTitleEl) modalTitleEl.textContent = message;
+            if (modalScoreEl) modalScoreEl.textContent = `Score final : Vous ${playerScore} - IA ${iaScore}`;
+            if (modalEl) modalEl.classList.add('show');
             
             // Boss mode - passer au boss suivant
             if (currentMode === 'boss' && playerScore >= winTarget) {
                 currentBoss++;
-                if (currentBoss < Object.keys(bossPatterns).length) {
+                const bossNames = Object.keys(bossPatterns);
+                if (currentBoss < bossNames.length) {
                     setTimeout(() => {
                         closeModal();
                         setupBossMode();
                         resetScores();
-                        showNotification(`Boss suivant : ${bossPatterns[Object.keys(bossPatterns)[currentBoss]].name}`, 'info');
+                        const boss = bossPatterns[bossNames[currentBoss]];
+                        showNotification(`Boss suivant : ${boss.name}`, 'info');
                     }, 2000);
                 }
             }
@@ -1307,16 +1347,20 @@
             playerHistory = [];
             iaHistory = [];
             roundsPlayed = 0;
+            currentBoss = 0;
             setupGameMode();
-            showNotification('Nouvelle partie commencée !', 'info');
+            showNotification('🎮 Nouvelle partie commencée !', 'info');
         }
 
         function closeModal() {
-            document.getElementById('modal').classList.remove('show');
+            const modalEl = document.getElementById('modal');
+            if (modalEl) modalEl.classList.remove('show');
         }
 
         function showNotification(message, type) {
             const notification = document.getElementById('notification');
+            if (!notification) return;
+            
             notification.textContent = message;
             notification.className = `notification ${type} show`;
             
@@ -1325,12 +1369,9 @@
             }, 3000);
         }
 
-        // Auto-start first game
+        // Auto-start notification
         setTimeout(() => {
             showNotification('🎮 Prêt à jouer ! Choisissez votre mode !', 'info');
-            if (currentMode === 'lightning' || currentMode === 'tornado') {
-                startTimer();
-            }
         }, 1000);
     </script>
 </body>
