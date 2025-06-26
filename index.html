@@ -465,91 +465,218 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* ===== ANIMATIONS DE COMBAT SPECTACULAIRES ===== */
-
-        /* Animation Pierre écrase Ciseau */
-        .player-choice.rock-crushes, .ia-choice.rock-crushes {
-            animation: rockCrush 1.5s ease-in-out;
+        /* TESTS ANIMATIONS SIMPLES D'ABORD */
+        .test-move-right {
+            animation: testMoveRight 2s ease-in-out forwards !important;
         }
 
-        @keyframes rockCrush {
-            0% { transform: scale(1) translateX(0); }
-            30% { transform: scale(1.3) translateX(20px) rotateZ(-15deg); }
-            60% { transform: scale(1.5) translateX(0) rotateZ(15deg); }
-            80% { transform: scale(1.2) translateX(-10px) rotateZ(-5deg); }
+        .test-move-left {
+            animation: testMoveLeft 2s ease-in-out forwards !important;
+        }
+
+        @keyframes testMoveRight {
+            0% { transform: translateX(0) scale(1); background: linear-gradient(145deg, #f8f8f8, #e0e0e0); }
+            50% { transform: translateX(100px) scale(1.5); background: linear-gradient(145deg, #ff6b6b, #feca57); }
+            100% { transform: translateX(0) scale(1); background: linear-gradient(145deg, #48bb78, #38a169); }
+        }
+
+        @keyframes testMoveLeft {
+            0% { transform: translateX(0) scale(1); background: linear-gradient(145deg, #f8f8f8, #e0e0e0); }
+            50% { transform: translateX(-100px) scale(1.5); background: linear-gradient(145deg, #ff6b6b, #feca57); }
+            100% { transform: translateX(0) scale(1); background: linear-gradient(145deg, #e53e3e, #c53030); }
+        }
+
+        /* Pierre du JOUEUR écrase ciseau de l'IA */
+        .player-choice.rock-attacks-right {
+            animation: rockAttackRight 2s ease-in-out;
+            z-index: 20;
+        }
+
+        @keyframes rockAttackRight {
+            0% { transform: scale(1) translateX(0) rotateZ(0deg); }
+            20% { transform: scale(1.2) translateX(0) rotateZ(-10deg); }
+            40% { transform: scale(1.4) translateX(clamp(100px, 25vw, 150px)) rotateZ(-20deg); }
+            60% { transform: scale(1.6) translateX(clamp(130px, 30vw, 200px)) rotateZ(-30deg); }
+            70% { transform: scale(1.8) translateX(clamp(150px, 35vw, 220px)) rotateZ(-40deg); }
+            80% { transform: scale(1.5) translateX(clamp(120px, 28vw, 180px)) rotateZ(-20deg); }
             100% { transform: scale(1) translateX(0) rotateZ(0deg); }
         }
 
-        .player-choice.scissors-crushed, .ia-choice.scissors-crushed {
-            animation: scissorsCrushed 1.5s ease-in-out;
+        /* Pierre de l'IA écrase ciseau du JOUEUR */
+        .ia-choice.rock-attacks-left {
+            animation: rockAttackLeft 2s ease-in-out;
+            z-index: 20;
         }
 
-        @keyframes scissorsCrushed {
-            0% { transform: scale(1) rotateZ(0deg); }
-            30% { transform: scale(0.9) rotateZ(-20deg) translateY(5px); }
-            60% { transform: scale(0.7) rotateZ(45deg) translateY(10px); }
-            80% { transform: scale(0.5) rotateZ(90deg) translateY(15px) opacity(0.5); }
-            100% { transform: scale(0.3) rotateZ(180deg) translateY(20px) opacity(0.2); }
+        @keyframes rockAttackLeft {
+            0% { transform: scale(1) translateX(0) rotateZ(0deg); }
+            20% { transform: scale(1.2) translateX(0) rotateZ(10deg); }
+            40% { transform: scale(1.4) translateX(-150px) rotateZ(20deg); }
+            60% { transform: scale(1.6) translateX(-200px) rotateZ(30deg); }
+            70% { transform: scale(1.8) translateX(-220px) rotateZ(40deg); }
+            80% { transform: scale(1.5) translateX(-180px) rotateZ(20deg); }
+            100% { transform: scale(1) translateX(0) rotateZ(0deg); }
         }
 
-        /* Animation Papier enveloppe Pierre */
-        .player-choice.paper-wraps, .ia-choice.paper-wraps {
-            animation: paperWrap 1.5s ease-in-out;
+        /* Ciseau se fait écraser - effet de destruction */
+        .player-choice.scissors-destroyed, .ia-choice.scissors-destroyed {
+            animation: scissorsDestroyed 2s ease-in-out;
         }
 
-        @keyframes paperWrap {
-            0% { transform: scale(1) rotateZ(0deg); }
-            25% { transform: scale(1.2) rotateZ(10deg) translateX(-15px); }
-            50% { transform: scale(1.4) rotateZ(-10deg) translateX(15px); }
-            75% { transform: scale(1.3) rotateZ(20deg) translateX(-10px); }
-            100% { transform: scale(1.1) rotateZ(0deg) translateX(0); }
+        @keyframes scissorsDestroyed {
+            0% { transform: scale(1) rotateZ(0deg); opacity: 1; }
+            40% { transform: scale(1) rotateZ(0deg); opacity: 1; }
+            60% { transform: scale(0.8) rotateZ(45deg) translateY(10px); opacity: 0.8; }
+            70% { transform: scale(0.6) rotateZ(90deg) translateY(20px); opacity: 0.6; filter: brightness(0.5); }
+            80% { transform: scale(0.4) rotateZ(135deg) translateY(30px); opacity: 0.4; filter: brightness(0.3); }
+            100% { transform: scale(0.2) rotateZ(180deg) translateY(40px); opacity: 0.1; filter: brightness(0.1); }
         }
 
+        /* Papier du JOUEUR enveloppe pierre de l'IA */
+        .player-choice.paper-attacks-right {
+            animation: paperAttackRight 2s ease-in-out;
+            z-index: 20;
+        }
+
+        @keyframes paperAttackRight {
+            0% { transform: scale(1) translateX(0) rotateZ(0deg); }
+            20% { transform: scale(1.1) translateX(20px) rotateZ(5deg); }
+            40% { transform: scale(1.3) translateX(100px) rotateZ(10deg); }
+            60% { transform: scale(1.6) translateX(180px) rotateZ(15deg); }
+            70% { transform: scale(1.8) translateX(220px) rotateZ(20deg); }
+            80% { transform: scale(1.4) translateX(160px) rotateZ(10deg); }
+            100% { transform: scale(1) translateX(0) rotateZ(0deg); }
+        }
+
+        /* Papier de l'IA enveloppe pierre du JOUEUR */
+        .ia-choice.paper-attacks-left {
+            animation: paperAttackLeft 2s ease-in-out;
+            z-index: 20;
+        }
+
+        @keyframes paperAttackLeft {
+            0% { transform: scale(1) translateX(0) rotateZ(0deg); }
+            20% { transform: scale(1.1) translateX(-20px) rotateZ(-5deg); }
+            40% { transform: scale(1.3) translateX(-100px) rotateZ(-10deg); }
+            60% { transform: scale(1.6) translateX(-180px) rotateZ(-15deg); }
+            70% { transform: scale(1.8) translateX(-220px) rotateZ(-20deg); }
+            80% { transform: scale(1.4) translateX(-160px) rotateZ(-10deg); }
+            100% { transform: scale(1) translateX(0) rotateZ(0deg); }
+        }
+
+        /* Pierre se fait envelopper - effet d'étouffement */
         .player-choice.rock-wrapped, .ia-choice.rock-wrapped {
-            animation: rockWrapped 1.5s ease-in-out;
+            animation: rockWrapped 2s ease-in-out;
         }
 
         @keyframes rockWrapped {
-            0% { transform: scale(1); filter: brightness(1); }
-            30% { transform: scale(0.9); filter: brightness(0.8); }
-            60% { transform: scale(0.8); filter: brightness(0.6); border-radius: 50%; }
-            80% { transform: scale(0.7); filter: brightness(0.4); border-radius: 70%; }
-            100% { transform: scale(0.6); filter: brightness(0.3); border-radius: 80%; }
+            0% { transform: scale(1); filter: brightness(1); border-radius: 15px; }
+            40% { transform: scale(1); filter: brightness(1); border-radius: 15px; }
+            60% { transform: scale(0.9); filter: brightness(0.7); border-radius: 30px; }
+            70% { transform: scale(0.8); filter: brightness(0.5); border-radius: 50px; }
+            80% { transform: scale(0.7); filter: brightness(0.3); border-radius: 70px; }
+            100% { transform: scale(0.6); filter: brightness(0.2); border-radius: 80px; opacity: 0.6; }
         }
 
-        /* Animation Ciseau coupe Papier */
-        .player-choice.scissors-cuts, .ia-choice.scissors-cuts {
-            animation: scissorsCut 1.5s ease-in-out;
+        /* Ciseau du JOUEUR coupe papier de l'IA */
+        .player-choice.scissors-attacks-right {
+            animation: scissorsAttackRight 2s ease-in-out;
+            z-index: 20;
         }
 
-        @keyframes scissorsCut {
+        @keyframes scissorsAttackRight {
             0% { transform: scale(1) translateX(0) rotateZ(0deg); }
-            25% { transform: scale(1.1) translateX(-20px) rotateZ(-15deg); }
-            50% { transform: scale(1.3) translateX(20px) rotateZ(15deg); }
-            75% { transform: scale(1.2) translateX(-10px) rotateZ(-10deg); }
+            20% { transform: scale(1.1) translateX(10px) rotateZ(-10deg); }
+            40% { transform: scale(1.2) translateX(120px) rotateZ(-20deg); }
+            60% { transform: scale(1.4) translateX(200px) rotateZ(-30deg); }
+            70% { transform: scale(1.3) translateX(220px) rotateZ(-35deg); }
+            80% { transform: scale(1.2) translateX(180px) rotateZ(-25deg); }
             100% { transform: scale(1) translateX(0) rotateZ(0deg); }
         }
 
+        /* Ciseau de l'IA coupe papier du JOUEUR */
+        .ia-choice.scissors-attacks-left {
+            animation: scissorsAttackLeft 2s ease-in-out;
+            z-index: 20;
+        }
+
+        @keyframes scissorsAttackLeft {
+            0% { transform: scale(1) translateX(0) rotateZ(0deg); }
+            20% { transform: scale(1.1) translateX(-10px) rotateZ(10deg); }
+            40% { transform: scale(1.2) translateX(-120px) rotateZ(20deg); }
+            60% { transform: scale(1.4) translateX(-200px) rotateZ(30deg); }
+            70% { transform: scale(1.3) translateX(-220px) rotateZ(35deg); }
+            80% { transform: scale(1.2) translateX(-180px) rotateZ(25deg); }
+            100% { transform: scale(1) translateX(0) rotateZ(0deg); }
+        }
+
+        /* Papier se fait couper - effet de déchirure */
         .player-choice.paper-cut, .ia-choice.paper-cut {
-            animation: paperCut 1.5s ease-in-out;
+            animation: paperCut 2s ease-in-out;
         }
 
         @keyframes paperCut {
-            0% { transform: scale(1) rotateZ(0deg); }
-            20% { transform: scale(1) rotateZ(5deg); }
-            40% { transform: scale(0.9) rotateZ(-5deg); }
+            0% { 
+                transform: scale(1) rotateZ(0deg); 
+                opacity: 1;
+                box-shadow: none;
+            }
+            40% { 
+                transform: scale(1) rotateZ(0deg); 
+                opacity: 1;
+                box-shadow: none;
+            }
             60% { 
+                transform: scale(0.9) rotateZ(5deg); 
+                opacity: 0.9;
+                box-shadow: inset 30px 0 0 rgba(255, 0, 0, 0.4);
+            }
+            70% { 
                 transform: scale(0.8) rotateZ(10deg); 
-                box-shadow: inset 20px 0 0 rgba(255, 0, 0, 0.3);
+                opacity: 0.8;
+                box-shadow: inset 50px 0 0 rgba(255, 0, 0, 0.6);
             }
             80% { 
-                transform: scale(0.7) rotateZ(-10deg); 
-                box-shadow: inset 40px 0 0 rgba(255, 0, 0, 0.5);
+                transform: scale(0.7) rotateZ(15deg); 
+                opacity: 0.7;
+                box-shadow: inset 70px 0 0 rgba(255, 0, 0, 0.8);
             }
             100% { 
-                transform: scale(0.6) rotateZ(15deg); 
-                box-shadow: inset 60px 0 0 rgba(255, 0, 0, 0.7);
-                opacity: 0.6;
+                transform: scale(0.6) rotateZ(20deg); 
+                opacity: 0.5;
+                box-shadow: inset 100px 0 0 rgba(255, 0, 0, 1);
+            }
+        }
+
+        /* Effets 3D supplémentaires pour plus de réalisme */
+        .combat-impact {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(255, 165, 0, 0.6) 30%, transparent 70%);
+            border-radius: 50%;
+            animation: impact3D 1s ease-out forwards;
+            pointer-events: none;
+            z-index: 30;
+        }
+
+        @keyframes impact3D {
+            0% { 
+                transform: translate(-50%, -50%) scale3d(0, 0, 0) rotateZ(0deg);
+                opacity: 0;
+            }
+            50% { 
+                transform: translate(-50%, -50%) scale3d(2, 2, 2) rotateZ(180deg);
+                opacity: 1;
+                box-shadow: 0 0 50px rgba(255, 165, 0, 0.8);
+            }
+            100% { 
+                transform: translate(-50%, -50%) scale3d(4, 4, 1) rotateZ(360deg);
+                opacity: 0;
+                box-shadow: 0 0 100px rgba(255, 165, 0, 0.3);
             }
         }
 
@@ -1372,7 +1499,7 @@
                             startTimer();
                         }
                     }
-                }, 2500);
+                }, 3500); // Augmenté pour voir les animations 3D complètes
                 
             }, 1200);
         }
@@ -1393,43 +1520,73 @@
             flash.className = 'combat-flash';
             arena.appendChild(flash);
             setTimeout(() => flash.remove(), 300);
+
+            // Impact 3D effect
+            const impact = document.createElement('div');
+            impact.className = 'combat-impact';
+            arena.appendChild(impact);
+            setTimeout(() => impact.remove(), 1000);
             
-            if (result !== 'tie') {
-                // Animations spécifiques selon le combat
-                if (playerChoice === 'pierre' && iaChoice === 'ciseau') {
-                    // Pierre écrase ciseau
-                    playerChoiceEl.classList.add('rock-crushes');
-                    iaChoiceEl.classList.add('scissors-crushed');
-                } else if (iaChoice === 'pierre' && playerChoice === 'ciseau') {
-                    iaChoiceEl.classList.add('rock-crushes');
-                    playerChoiceEl.classList.add('scissors-crushed');
-                } else if (playerChoice === 'papier' && iaChoice === 'pierre') {
-                    // Papier enveloppe pierre
-                    playerChoiceEl.classList.add('paper-wraps');
-                    iaChoiceEl.classList.add('rock-wrapped');
-                } else if (iaChoice === 'papier' && playerChoice === 'pierre') {
-                    iaChoiceEl.classList.add('paper-wraps');
-                    playerChoiceEl.classList.add('rock-wrapped');
-                } else if (playerChoice === 'ciseau' && iaChoice === 'papier') {
-                    // Ciseau coupe papier
-                    playerChoiceEl.classList.add('scissors-cuts');
-                    iaChoiceEl.classList.add('paper-cut');
-                } else if (iaChoice === 'ciseau' && playerChoice === 'papier') {
-                    iaChoiceEl.classList.add('scissors-cuts');
-                    playerChoiceEl.classList.add('paper-cut');
+            // ANIMATIONS INTERACTIVES - Délai pour permettre l'affichage d'abord
+            setTimeout(() => {
+                
+                if (result === 'tie') {
+                    // ÉGALITÉ - Collision au centre
+                    playerChoiceEl.classList.add('tie-clash');
+                    iaChoiceEl.classList.add('tie-clash');
+                    
+                } else if (result === 'win') {
+                    // LE JOUEUR GAGNE - SON ÉLÉMENT ATTAQUE L'IA
+                    if (playerChoice === 'pierre' && iaChoice === 'ciseau') {
+                        playerChoiceEl.classList.add('rock-attacks-right');
+                        iaChoiceEl.classList.add('scissors-destroyed');
+                    } else if (playerChoice === 'papier' && iaChoice === 'pierre') {
+                        playerChoiceEl.classList.add('paper-attacks-right');
+                        iaChoiceEl.classList.add('rock-wrapped');
+                    } else if (playerChoice === 'ciseau' && iaChoice === 'papier') {
+                        playerChoiceEl.classList.add('scissors-attacks-right');
+                        iaChoiceEl.classList.add('paper-cut');
+                    }
+                    
+                } else if (result === 'lose') {
+                    // L'IA GAGNE - SON ÉLÉMENT ATTAQUE LE JOUEUR
+                    if (iaChoice === 'pierre' && playerChoice === 'ciseau') {
+                        iaChoiceEl.classList.add('rock-attacks-left');
+                        playerChoiceEl.classList.add('scissors-destroyed');
+                    } else if (iaChoice === 'papier' && playerChoice === 'pierre') {
+                        iaChoiceEl.classList.add('paper-attacks-left');
+                        playerChoiceEl.classList.add('rock-wrapped');
+                    } else if (iaChoice === 'ciseau' && playerChoice === 'papier') {
+                        iaChoiceEl.classList.add('scissors-attacks-left');
+                        playerChoiceEl.classList.add('paper-cut');
+                    }
                 }
                 
-                // Winner/Loser effects
-                if (result === 'win') {
-                    playerChoiceEl.classList.add('winner');
-                    iaChoiceEl.classList.add('loser');
-                } else {
-                    iaChoiceEl.classList.add('winner');
-                    playerChoiceEl.classList.add('loser');
+                // Effets de victoire/défaite (seulement si pas d'égalité)
+                if (result !== 'tie') {
+                    setTimeout(() => {
+                        if (result === 'win') {
+                            playerChoiceEl.classList.add('winner');
+                            iaChoiceEl.classList.add('loser');
+                        } else {
+                            iaChoiceEl.classList.add('winner');
+                            playerChoiceEl.classList.add('loser');
+                        }
+                    }, 1500);
                 }
-            }
+            }, 200);
             
-            playSound(result === 'win' ? 800 : result === 'lose' ? 300 : 500, 400);
+            // Sons correspondants aux actions
+            if (result === 'win') {
+                playSound(800, 400);
+                setTimeout(() => playSound(1000, 200), 1000); // Son de victoire
+            } else if (result === 'lose') {
+                playSound(300, 400);
+                setTimeout(() => playSound(200, 300), 1000); // Son de défaite
+            } else {
+                playSound(500, 400); // Son d'égalité
+                setTimeout(() => playSound(600, 150), 500); // Son de collision
+            }
         }
 
         function getIAChoice(playerChoice) {
@@ -1609,11 +1766,13 @@
             
             if (playerChoiceEl) {
                 playerChoiceEl.textContent = '';
-                playerChoiceEl.className = 'player-choice'; // Reset all classes
+                // Supprime TOUTES les classes d'animation
+                playerChoiceEl.className = 'player-choice';
             }
             if (iaChoiceEl) {
                 iaChoiceEl.textContent = '';
-                iaChoiceEl.className = 'ia-choice'; // Reset all classes
+                // Supprime TOUTES les classes d'animation
+                iaChoiceEl.className = 'ia-choice';
             }
             if (msgEl) msgEl.textContent = '';
         }
