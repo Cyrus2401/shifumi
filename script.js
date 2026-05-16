@@ -11,6 +11,7 @@ let modal = document.getElementById('myModal')
 
 let winNumber = 1
 let gameActive = true
+let isWaitingForIA = false
 
 // Initialisation du jeu
 function initGame() {
@@ -23,10 +24,16 @@ function initGame() {
     showMessage(2, `🎮 Le premier à ${winNumber} gagne la partie${winNumber > 1 ? 's' : ''} !`)
 }
 
-window.addEventListener('DOMContentLoaded', initGame)
+window.addEventListener('DOMContentLoaded', () => {
+    const yearSpan = document.getElementById('current-year');
+    if (yearSpan) yearSpan.textContent = new Date().getFullYear();
+    initGame();
+})
 
 function showHumanChoice(src, value) {
-    if (!gameActive) return;
+    if (!gameActive || isWaitingForIA) return;
+    
+    isWaitingForIA = true;
     
     // Obtenir l'emoji correspondant au choix
     let chosenEmoji;
@@ -88,6 +95,7 @@ function processGame() {
             IA_choice.textContent = '';
             notification.setAttribute('class', "")
         }
+        isWaitingForIA = false;
     }, 3000)  
 }
 
@@ -169,10 +177,10 @@ function showVictoryModal(winner, humanScore, iaScore) {
     
     if (winner === 'human') {
         msgWinner.innerHTML = '🏆 Félicitations !<br>Vous avez remporté la partie !'
-        finalScore.innerHTML = `Score final : <strong>Vous ${humanScore}</strong> - <strong>IA ${iaScore}</strong>`
+        finalScore.innerHTML = `Vous ${humanScore} - ${iaScore} IA`
     } else {
         msgWinner.innerHTML = '🤖 L\'IA remporte la partie !<br>Meilleure chance la prochaine fois !'
-        finalScore.innerHTML = `Score final : <strong>IA ${iaScore}</strong> - <strong>Vous ${humanScore}</strong>`
+        finalScore.innerHTML = `IA ${iaScore} - ${humanScore} Vous`
     }
 }
 
@@ -192,6 +200,7 @@ function resetGame() {
     
     // Réactiver le jeu
     gameActive = true
+    isWaitingForIA = false
     
     // Cacher les notifications
     notification.setAttribute('class', "")
